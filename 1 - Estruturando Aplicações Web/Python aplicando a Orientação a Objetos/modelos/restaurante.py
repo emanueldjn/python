@@ -1,45 +1,40 @@
-class Restaurante: 
-    nome = ''
-    categoria = ''
-    ativo = False
+from modelos.avaliacao import Avaliacao
 
+class Restaurante:
+    restaurantes = []
 
-# instancia inicial 
-restaurante_praca = Restaurante()
+    def __init__(self, nome, categoria):
+        self._nome = nome.title()
+        self._categoria = categoria.upper()
+        self._ativo = False
+        self._avaliacao = []
+        Restaurante.restaurantes.append(self)
+    
+    def __str__(self):
+        return f'{self._nome} | {self._categoria}'
+    
+    @classmethod
+    def listar_restaurantes(cls):
+        print(f'{'Nome do restaurante'.ljust(25)} | {'Categoria'.ljust(25)} | {'Avaliação'.ljust(25)} |{'Status'}')
+        for restaurante in cls.restaurantes:
+            print(f'{restaurante._nome.ljust(25)} | {restaurante._categoria.ljust(25)} | {str(restaurante.media_avaliacoes).ljust(25)} |{restaurante.ativo}')
 
-# 1. atribuir 'Italiana' a categoria
-restaurante_praca.categoria = 'Italiana'
+    @property
+    def ativo(self):
+        return '⌧' if self._ativo else '☐'
+    
+    def alternar_estado(self):
+        self._ativo = not self._ativo
 
-# 2. acessar o nome (antes de alterar)
-print("Nome inicial:", restaurante_praca.nome)
+    def receber_avaliacao(self, cliente, nota):
+        avaliacao = Avaliacao(cliente, nota)
+        self._avaliacao.append(avaliacao)
 
-# 3. Verificar se está ativo ou inativo
-if restaurante_praca.ativo:
-    print("Restaurante está ativo")
-else:
-    print("Restaurante está inativo")
-
-# 4. acessar atributo classe  diretamente
-categoria = Restaurante.categoria
-print("Categoria do restaurante:", categoria)
-
-# 5. Alterar nome para 'Bistrô'
-restaurante_praca.nome = 'Bistrô'
-print("Nome alterado:", restaurante_praca.nome)
-
-# 6. Criar nova instância restaurante_pizza
-restaurante_pizza = Restaurante()
-restaurante_pizza.nome = 'Pizza Place'
-restaurante_pizza.categoria = 'Fast Food'
-
-# 7. Verificar se categoria é 'Fast Food'
-if restaurante_pizza.categoria == 'Fast Food':
-    print("Categoria do restaurante_pizza é Fast Food")
-
-# 8. Ativar restaurante_pizza
-restaurante_pizza.ativo = True
-
-# 9. Imprimir nome e categoria do restaurante_praca
-print("Restaurante Praça:")
-print("Nome:", restaurante_praca.nome)
-print("Categoria:", restaurante_praca.categoria)
+    @property
+    def media_avaliacoes(self):
+        if not self._avaliacao:
+            return 0
+        soma_das_notas = sum(avaliacao._nota for avaliacao in self._avaliacao)
+        quantidade_de_notas = len(self._avaliacao)
+        media = round(soma_das_notas / quantidade_de_notas, 1)
+        return media
